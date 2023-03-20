@@ -12,6 +12,7 @@ goal_state = board.find_goal_state()
 # Runtime in seconds
 RUN_TIME = 5
 
+
 class AStarThread(threading.Thread):
     def __init__(self, board, goal):
         threading.Thread.__init__(self)
@@ -19,7 +20,7 @@ class AStarThread(threading.Thread):
         self.board = board
         self.goal = goal
 
-    #The main A* algorithm
+    # The main A* algorithm
     def a_star(self, start, goal):
         frontier = []
         heapq.heappush(frontier, (0, start))
@@ -47,19 +48,16 @@ class AStarThread(threading.Thread):
 
         return path
 
-
     def run(self):
         lock = threading.Lock()
         with lock:
             path = self.a_star(self.board, self.goal)
             for board in path:
                 print(board.move_title)
-            
 
     def stop(self):
         self._stop_event.set()
 
-    
 
 run_thread = AStarThread(board, goal_state)
 run_thread.daemon = True

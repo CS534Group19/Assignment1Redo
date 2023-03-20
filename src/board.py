@@ -118,13 +118,15 @@ class Board():
             elif (neighbor_x-x_0) == -1 and (neighbor_y-y_0) == 0:
                 move_string = f"Moved {parent_board.board[neighbor_y][neighbor_x]} right"
 
-            temp_board = Board(csv_file=None, array_board=current_board, move_title=move_string)
+            temp_board = Board(
+                csv_file=None, array_board=current_board, move_title=move_string)
             children.append((temp_board, neighbor_value))
         return children
 
     def __str__(self):
         return str(self.board)
-    
+
+
 def get_coords_for_val(board: list[list[int]], val: int):
     """Static method to find the (x,y) coordinates of the provided value
     ### Parameters
@@ -139,6 +141,7 @@ def get_coords_for_val(board: list[list[int]], val: int):
             if board[x][y] == val:
                 return (x, y)
     return -1
+
 
 def calculate_manhattan_dist_for_value(current_board: list[list[int]], goal_board: list[list[int]], val: int, weighted: bool) -> int:
     """Static method to compute the Manhattan distance for a given value
@@ -161,7 +164,9 @@ def calculate_manhattan_dist_for_value(current_board: list[list[int]], goal_boar
         else:
             return abs(current_coords[0] - goal_coords[0]) + abs(current_coords[1] - goal_coords[1])
 
-def getHVal(board_obj: Board, goal: list[list[int]]) -> int: # sliding heuristic
+
+# sliding heuristic
+def getHVal(board_obj: Board, goal: list[list[int]]) -> int:
     """Static method to find the total heuristic value of a given board
     ### Parameters
     - board_obj: a Board object to be fitted with a heuristic value
@@ -172,7 +177,8 @@ def getHVal(board_obj: Board, goal: list[list[int]]) -> int: # sliding heuristic
     total: int = 0
     for i in range(1, len(board_obj.board)**2):
         # TODO implement weighted command line arg
-        manhattan_distance = calculate_manhattan_dist_for_value(board_obj.board, goal, i, False)
+        manhattan_distance = calculate_manhattan_dist_for_value(
+            board_obj.board, goal, i, False)
         if manhattan_distance != -1:
             total += manhattan_distance
     return total
