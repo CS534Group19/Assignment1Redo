@@ -9,6 +9,7 @@ board = Board(csv_file)
 board.set_possible_moves()
 goal_state = Board(
     csv_file=None, array_board=board.find_goal_state(), move_title="Goal")
+
 reached_goal = False
 
 # Runtime in seconds
@@ -31,7 +32,7 @@ class AStarThread(threading.Thread):
         frontier.append((0, start))
         cost_so_far = {start: 0}
 
-        while frontier:
+        while frontier and not self._stop_event.is_set():
             # current = heapq.heappop(frontier)[1]
             current = frontier.pop(0)[1]
             if current.board == goal.board:
