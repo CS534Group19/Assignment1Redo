@@ -1,10 +1,11 @@
-from board import Board
+from board import *
 import threading
 from time import sleep
 
 csv_file = "./documentation/test_boards/board1.csv"
 
 board = Board(csv_file)
+board.set_possible_moves()
 
 # Runtime in seconds
 RUN_TIME = 5
@@ -14,11 +15,13 @@ class GreedyThread(threading.Thread):
         threading.Thread.__init__(self)
         self._stop_event = threading.Event()
 
+    def greedy(self):
+        pass
+
     def run(self):
         lock = threading.Lock()
         with lock:
-            # TODO write Greedy here
-            pass
+            self.greedy()
 
     def stop(self):
         self._stop_event.set()

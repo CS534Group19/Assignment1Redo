@@ -1,4 +1,4 @@
-from board import Board
+from board import *
 import threading
 from time import sleep
 import heapq
@@ -6,6 +6,7 @@ import heapq
 csv_file = "./documentation/test_boards/board1.csv"
 
 board = Board(csv_file)
+board.set_possible_moves()
 
 # Runtime in seconds
 RUN_TIME = 5
