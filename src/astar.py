@@ -19,13 +19,18 @@ class AStarThread(threading.Thread):
     def get_cost(self, child_board, move):
         tile_x,tile_y = move[2],move[3]
         return child_board[tile_y][tile_x]
+    
+    #heuristic function
+    def manhattan_distance(self, goal, board):
+        pass
 
-
-    def a_star(self, grid, start, goal):
+    #The main A* algorithm
+    def a_star(self, start, goal):
         frontier = []
         heapq.heappush(frontier, (0, start))
         came_from = {start: None}
         cost_so_far = {start: 0}
+
         while frontier:
             current = heapq.heappop(frontier)[1]
             if current == goal:
@@ -33,8 +38,18 @@ class AStarThread(threading.Thread):
 
             for child in self.get_children(current):
                 new_cost = cost_so_far[current] + self.get_cost(child[0], child[1])
+                if (child) not in cost_so_far or new_cost < cost_so_far[child]:
+                    cost_so_far[child] = new_cost
+                    priority = new_cost + self.manhattan_distance(goal, child)
+                    heapq.heappush(frontier, (priority, child))
+                    came_from[child] = current
 
-    
+        path = [goal]
+        while path[-1] != start:
+            path.append(came_from[path[-1]])
+        path.reverse()
+
+        return path
 
 
     def run(self):
