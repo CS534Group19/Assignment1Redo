@@ -119,7 +119,7 @@ class Board():
                 move_string = f"Moved {parent_board.board[neighbor_y][neighbor_x]} right"
 
             temp_board = Board(csv_file=None, array_board=current_board, move_title=move_string)
-            children.append((temp_board, move))
+            children.append((temp_board, neighbor_value))
         return children
 
     def __str__(self):
