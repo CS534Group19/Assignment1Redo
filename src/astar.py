@@ -1,6 +1,7 @@
 from board import Board
 import threading
 from time import sleep
+import heapq
 
 csv_file = "./documentation/test_boards/board1.csv"
 
@@ -14,6 +15,28 @@ class AStarThread(threading.Thread):
         threading.Thread.__init__(self)
         self._stop_event = threading.Event()
 
+    #define costs for moves
+    def get_cost(self, child_board, move):
+        tile_x,tile_y = move[2],move[3]
+        return child_board[tile_y][tile_x]
+
+
+    def a_star(self, grid, start, goal):
+        frontier = []
+        heapq.heappush(frontier, (0, start))
+        came_from = {start: None}
+        cost_so_far = {start: 0}
+        while frontier:
+            current = heapq.heappop(frontier)[1]
+            if current == goal:
+                break
+
+            for child in self.get_children(current):
+                new_cost = cost_so_far[current] + self.get_cost(child[0], child[1])
+
+    
+
+
     def run(self):
         lock = threading.Lock()
         with lock:
@@ -22,6 +45,8 @@ class AStarThread(threading.Thread):
 
     def stop(self):
         self._stop_event.set()
+
+    
 
 run_thread = AStarThread()
 run_thread.daemon = True
