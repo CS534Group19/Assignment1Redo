@@ -9,7 +9,7 @@ board = Board(csv_file)
 # Runtime in seconds
 RUN_TIME = 5
 
-class BoardThread(threading.Thread):
+class AStarThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self._stop_event = threading.Event()
@@ -23,7 +23,7 @@ class BoardThread(threading.Thread):
     def stop(self):
         self._stop_event.set()
 
-run_thread = BoardThread()
+run_thread = AStarThread()
 run_thread.daemon = True
 run_thread.start()
 
