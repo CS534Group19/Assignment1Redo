@@ -152,7 +152,6 @@ def calc_the_move_between_two_states(board_state_from, board_state_to):
 def backtrack_path_from_current(board_state):
     path = []
     while not(board_state.parent == None):
-        print("found parent")
         path.append(calc_the_move_between_two_states(board_state.parent, board_state))
         board_state = board_state.parent
     path.reverse()
@@ -162,6 +161,7 @@ def A_Star():
     while len(FRONTIER) > 0:
         current_board = get_state_with_lowest_fval()
         if current_board.current_board_state == GOAL_STATE:
+            print(current_board.current_board_state)
             return backtrack_path_from_current(current_board)
         FRONTIER.remove(current_board)
         VISITED.append(current_board)
@@ -178,7 +178,7 @@ def A_Star():
 #fo.close()
 
 
-"""
+"""\
 run_thread = AStarThread(board, goal_state)
 run_thread.daemon = True
 
@@ -197,10 +197,10 @@ Testing stuff :)
 DEBUG = True
 if DEBUG == True:
     print(N)
-
+    '''
     unweightedManhatTest = calc_total_manhattan_distance(START_STATE, False)
     weightedManhatTest = calc_total_manhattan_distance(START_STATE, True)
-
+    
     print("Total Unweighted Manhattan of Start State equals: ", unweightedManhatTest)
     print("Total Unweighted Manhattan of Start State equals: ", weightedManhatTest)
 
@@ -212,7 +212,7 @@ if DEBUG == True:
     print("Test of board movement: ")
     print(calc_the_move_between_two_states(BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS), 
                                            BoardState(START_STATE_ALTERED, None, 0, H_TYPE, HVAL_USES_WEIGHTS)))
-    
-    print(backtrack_path_from_current(startchildren[0]))
+    '''
+    print(A_Star())
 
 
