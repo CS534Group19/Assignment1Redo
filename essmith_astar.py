@@ -1,6 +1,7 @@
 import threading
 from time import sleep
 import math
+import copy
 
 csv_file = "./documentation/test_boards/board1.csv"
 
@@ -84,42 +85,48 @@ def get_all_possible_states_from_current_state(board_state):
     for row in range(N):
         for col in range(N):
             if board_state.current_board_state[row][col] == 0:
+                print(col, row, board_state.current_board_state[row][col])
+
                 # Up
                 delta_y = row + 1
                 if delta_y >= 0 and delta_y < N:
                     if board_state.current_board_state[delta_y][col] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[delta_y][col]
                         new_board_state[delta_y][col] = 0
-                    
+                        print("up")
                         states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        print(board_state.current_board_state)
                 # Down
                 delta_y = row - 1
                 if delta_y >= 0 and delta_y < N:
                     if board_state.current_board_state[delta_y][col] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[delta_y][col]
                         new_board_state[delta_y][col] = 0
-                    
+                        print("down")
                         states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        print(board_state.current_board_state)
                 # Left
                 delta_x = col - 1
                 if delta_x >= 0 and delta_x < N:
                     if board_state.current_board_state[row][delta_x] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[row][delta_x]
                         new_board_state[row][delta_x] = 0
-                    
+                        print("left")
                         states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        print(board_state.current_board_state)
                 # Right
                 delta_x = col + 1
                 if delta_x >= 0 and delta_x < N:
                     if board_state.current_board_state[row][delta_x] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[row][delta_x]
                         new_board_state[row][delta_x] = 0
-                    
+                        print("right")
                         states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        print(board_state.current_board_state)
     return states 
 
 def calc_the_move_between_two_states(board_state_from, board_state_to):
