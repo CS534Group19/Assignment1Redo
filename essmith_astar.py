@@ -38,14 +38,93 @@ def calc_total_manhattan_distance(whole_board, weighted_TF):
             total_manhattan_distance += calc_manhattan_distance(current_tile_of_board, row, col, weighted_TF)    
     return total_manhattan_distance
 
-# TODO
-def heuristic(whole_board, h_type):
-    """
-    Probably define h_type as number, each for preferred heuristic type
-    """
-    return 0
+# TODO - GREEDY
+def heuristic(whole_board, heuristic_type, heuristic_uses_weights_TF):
+    if heuristic_type == "Sliding":
+        return calc_total_manhattan_distance(whole_board, heuristic_uses_weights_TF)
+    elif heuristic_type == "Greedy":
+        return None
+        # TODO - Greedy
+        # calc_total_manhattan_distance(whole_board, heuristic_uses_weights_TF)
+    else:
+        return 0
+
+class BoardState:
+    def __init__(self, current_board_state, parent_board, g, heuristic_type, heuristic_uses_weights_TF):
+        self.current_board_state = current_board_state
+        self.parent = parent_board
+        self.g = g
+        self.h = heuristic(current_board_state, heuristic_type, heuristic_uses_weights_TF)
+        self.f = self.g + self.h
+
+H_TYPE = "Greedy"
+HVAL_USES_WEIGHTS = True
+FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
+VISITED = []
+
+# Finds the state in the frontier with the lowest f-value
+def get_state_with_lowest_fval():
+    smallest_state_fval_so_far = math.inf()
+    smallest_state_so_far = None
+    for board in FRONTIER:
+        if board.f < smallest_state_fval_so_far:
+            smallest_state_fval_so_far = board.f
+            smallest_state_so_far = board
+    return smallest_state_so_far
+
+# Takes a board_state and returns a list of boards which are possible from the given state's blanks
+def get_all_possible_states_from_current_state(board_state):
+    states = []
+    for row in range(N):
+        for col in range(N):
+            if board_state[row][col] == 0:
+                # Up
+                delta_y = row+1
+                if delta_y >= 0 and delta_y < N:
+                    if board_state[delta_y][col] != 0:
+                        states.append((col, row, col, delta_y))
+                # Down
+                delta_y = row-1
+                if delta_y >= 0 and delta_y < N:
+                    if board_state[delta_y][col] != 0:
+                        states.append((col, row, col, delta_y))
+                # Left
+                delta_x = col-1
+                if delta_x >= 0 and delta_x < N:
+                    if board_state[row][delta_x] != 0:
+                        states.append((col, row, delta_x, row))
+                # Right
+                delta_x = col+1
+                if delta_x >= 0 and delta_x < N:
+                    if board_state[row][delta_x] != 0:
+                        states.append((col, row, delta_x, row))   
+    return states 
+
+def calc_the_move_between_two_states(origin_state, destination_state):
+    
+    # Base move value
+    move = "Moved "
+    
+    for row in range(N):
+        for col in range(N):
+            if origin_state.current_board_state[row][col] != destination_state.current_board_state[row][col] and destination_state.current_board_state[row][col] != 0:
+                
+                # Add the tile value to the string
+                move += destination_state.current_board_state[row][col] + " "
+
+                # Add the directional portion to the string
+                if row - 1 >= 0 and origin_state.current_board_state[row][col] == destination_state.current_board_state[row - 1][col]:
+                    move += "up"
+                elif row + 1 <= (N - 1) and origin_state.current_board_state[row][col] == to_state.configuration[row+1][col]:
+                    move += "down"
+                elif col-1 >= 0 and from_state.configuration[row][col] == to_state.configuration[row][col-1]:
+                    move += "left"
+                else: 
+                    move += "right"
 
 
+                break       
+    return move
 
 
 """
