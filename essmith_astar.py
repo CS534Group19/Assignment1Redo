@@ -4,8 +4,9 @@ import math
 
 csv_file = "./documentation/test_boards/board1.csv"
 
-START_STATE =        [[1, 3, 6], [4, 2, 0], [7, 5, 9]]
-GOAL_STATE  =        [[1, 2, 3], [4, 5, 6], [7, 9, 0]]
+START_STATE =                   [[1, 3, 6], [4, 2, 0], [7, 5, 9]]
+START_STATE_ALTERED =           [[1, 3, 6], [4, 0, 2], [7, 5, 9]]
+GOAL_STATE  =                   [[1, 2, 3], [4, 5, 6], [7, 9, 0]]
 N = len(START_STATE)
 
 # Runtime in seconds
@@ -60,6 +61,8 @@ class BoardState:
         self.h = heuristic(current_board_state, heuristic_type, heuristic_uses_weights_TF)
         self.f = self.g + self.h
 
+    def __str__(self):
+        return str(self.current_board_state)
 
 FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
 VISITED = []
@@ -75,6 +78,7 @@ def get_state_with_lowest_fval():
     return smallest_state_so_far
 
 # Takes a board_state and returns a list of boards which are possible from the given state's blanks
+# TODO TODO TODO
 def get_all_possible_states_from_current_state(board_state):
     states = []
     for row in range(N):
@@ -128,18 +132,23 @@ def calc_the_move_between_two_states(board_state_from, board_state_to):
             if board_state_from.current_board_state[row][col] != board_state_to.current_board_state[row][col] and board_state_to.current_board_state[row][col] != 0:
     
                 # Add the tile value to the string
-                move += board_state_to.current_board_state[row][col] + " "
+                move += str(board_state_to.current_board_state[row][col]) + " "
 
                 # Add the directional portion to the string
                 if row - 1 >= 0 and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row - 1][col]:
                     move += "up"
+                    break
                 elif row + 1 <= (N - 1) and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row + 1][col]:
                     move += "down"
+                    break
                 elif col - 1 >= 0 and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row][col - 1]:
                     move += "left"
-                else: 
+                    break
+                elif col + 1 <= (N - 1) and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row][col + 1]:
                     move += "right"
-                break       
+                    break
+                else:
+                    continue
     return move
 
 def backtrack_path_from_current(board_state):
@@ -162,11 +171,11 @@ def A_Star():
             if not(child_state in FRONTIER):
                 FRONTIER.append(child_state)
 
-output_file_name = "C:\\Users\\essmi\\OneDrive\\Desktop\\Output.txt"
-fo = open(output_file_name, "w")
-PATH = A_Star()
-fo.write(", ".join(PATH))
-fo.close()
+#output_file_name = "C:\\Users\\essmi\\OneDrive\\Desktop\\Output.txt"
+#fo = open(output_file_name, "w")
+#PATH = A_Star()
+#fo.write(", ".join(PATH))
+#fo.close()
 
 
 """
@@ -194,3 +203,12 @@ if DEBUG == True:
 
     print("Total Unweighted Manhattan of Start State equals: ", unweightedManhatTest)
     print("Total Unweighted Manhattan of Start State equals: ", weightedManhatTest)
+
+    print("The start board: \n", START_STATE)
+
+    startchildren = get_all_possible_states_from_current_state(BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS))
+    print("# of children it has :", len(startchildren))
+
+    print("Test of board movement: ")
+    print(calc_the_move_between_two_states(BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS), 
+                                           BoardState(START_STATE_ALTERED, None, 0, H_TYPE, HVAL_USES_WEIGHTS)))
