@@ -100,29 +100,55 @@ def get_all_possible_states_from_current_state(board_state):
                         states.append((col, row, delta_x, row))   
     return states 
 
-def calc_the_move_between_two_states(origin_state, destination_state):
+def calc_the_move_between_two_states(board_state_from, board_state_to):
     
     # Base move value
     move = "Moved "
     
     for row in range(N):
         for col in range(N):
-            if origin_state.current_board_state[row][col] != destination_state.current_board_state[row][col] and destination_state.current_board_state[row][col] != 0:
+            if board_state_from.current_board_state[row][col] != board_state_to.current_board_state[row][col] and board_state_to.current_board_state[row][col] != 0:
     
                 # Add the tile value to the string
-                move += destination_state.current_board_state[row][col] + " "
+                move += board_state_to.current_board_state[row][col] + " "
 
                 # Add the directional portion to the string
-                if row - 1 >= 0 and origin_state.current_board_state[row][col] == destination_state.current_board_state[row - 1][col]:
+                if row - 1 >= 0 and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row - 1][col]:
                     move += "up"
-                elif row + 1 <= (N - 1) and origin_state.current_board_state[row][col] == destination_state.current_board_state[row + 1][col]:
+                elif row + 1 <= (N - 1) and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row + 1][col]:
                     move += "down"
-                elif col - 1 >= 0 and origin_state.current_board_state[row][col] == destination_state.current_board_state[row][col - 1]:
+                elif col - 1 >= 0 and board_state_from.current_board_state[row][col] == board_state_to.current_board_state[row][col - 1]:
                     move += "left"
                 else: 
                     move += "right"
                 break       
     return move
+
+def backtrack_path_from_current(board_state):
+    path = []
+    while not(board_state.parent == None):
+        path.append(calc_the_move_between_two_states(board_state.parent, board_state))
+        board_state = board_state.parent
+    return path.reverse()
+
+def A_Star():
+    while len(FRONTIER) > 0:
+        current_board = get_state_with_lowest_fval()
+        if current_board.current_board_state == GOAL_STATE:
+            return backtrack_path_from_current(current_board)
+        FRONTIER.remove(current_board)
+        VISITED.append(current_board)
+        for child_state in get_all_possible_states_from_current_state(current_board):
+            if child_state in VISITED:
+                continue
+            if not(child_state in FRONTIER):
+                FRONTIER.append(child_state)
+
+output_file_name = "FILEPATH"
+fo = open(output_file_name, "w")
+PATH = A_Star()
+fo.write(", ".join(PATH))
+fo.close()
 
 
 """
