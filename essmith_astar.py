@@ -43,7 +43,7 @@ def heuristic(whole_board, heuristic_type, heuristic_uses_weights_TF):
     if heuristic_type == "Sliding":
         return calc_total_manhattan_distance(whole_board, heuristic_uses_weights_TF)
     elif heuristic_type == "Greedy":
-        return None
+        return 0
         # TODO - Greedy
         # calc_total_manhattan_distance(whole_board, heuristic_uses_weights_TF)
     else:
@@ -57,14 +57,9 @@ class BoardState:
         self.h = heuristic(current_board_state, heuristic_type, heuristic_uses_weights_TF)
         self.f = self.g + self.h
 
-H_TYPE = "Greedy"
-HVAL_USES_WEIGHTS = True
-FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
-VISITED = []
-
 # Finds the state in the frontier with the lowest f-value
 def get_state_with_lowest_fval():
-    smallest_state_fval_so_far = math.inf()
+    smallest_state_fval_so_far = 99999999999999
     smallest_state_so_far = None
     for board in FRONTIER:
         if board.f < smallest_state_fval_so_far:
@@ -77,26 +72,26 @@ def get_all_possible_states_from_current_state(board_state):
     states = []
     for row in range(N):
         for col in range(N):
-            if board_state[row][col] == 0:
+            if board_state.current_board_state[row][col] == 0:
                 # Up
                 delta_y = row+1
                 if delta_y >= 0 and delta_y < N:
-                    if board_state[delta_y][col] != 0:
+                    if board_state.current_board_state[delta_y][col] != 0:
                         states.append((col, row, col, delta_y))
                 # Down
                 delta_y = row-1
                 if delta_y >= 0 and delta_y < N:
-                    if board_state[delta_y][col] != 0:
+                    if board_state.current_board_state[delta_y][col] != 0:
                         states.append((col, row, col, delta_y))
                 # Left
                 delta_x = col-1
                 if delta_x >= 0 and delta_x < N:
-                    if board_state[row][delta_x] != 0:
+                    if board_state.current_board_state[row][delta_x] != 0:
                         states.append((col, row, delta_x, row))
                 # Right
                 delta_x = col+1
                 if delta_x >= 0 and delta_x < N:
-                    if board_state[row][delta_x] != 0:
+                    if board_state.current_board_state[row][delta_x] != 0:
                         states.append((col, row, delta_x, row))   
     return states 
 
@@ -131,6 +126,11 @@ def backtrack_path_from_current(board_state):
         board_state = board_state.parent
     return path.reverse()
 
+H_TYPE = "Sliding"
+HVAL_USES_WEIGHTS = True
+FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
+VISITED = []
+
 def A_Star():
     while len(FRONTIER) > 0:
         current_board = get_state_with_lowest_fval()
@@ -144,7 +144,7 @@ def A_Star():
             if not(child_state in FRONTIER):
                 FRONTIER.append(child_state)
 
-output_file_name = "FILEPATH"
+output_file_name = "C:\\Users\\mikea\\OneDrive\\Desktop\\Output.txt"
 fo = open(output_file_name, "w")
 PATH = A_Star()
 fo.write(", ".join(PATH))
