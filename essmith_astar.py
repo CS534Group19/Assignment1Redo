@@ -144,6 +144,15 @@ def A_Star():
             if not(child_state in FRONTIER):
                 FRONTIER.append(child_state)
 
+
+###############################
+
+
+##Output needs to be changed for yours to work
+##Saved to a file named Output.txt
+##Just create Output.txt on your desktop and change the file path
+
+###############################
 output_file_name = "C:\\Users\\mikea\\OneDrive\\Desktop\\Output.txt"
 fo = open(output_file_name, "w")
 PATH = A_Star()
