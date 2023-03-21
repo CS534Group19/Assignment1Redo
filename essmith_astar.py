@@ -49,6 +49,9 @@ def heuristic(whole_board, heuristic_type, heuristic_uses_weights_TF):
     else:
         return 0
 
+H_TYPE = "Sliding"
+HVAL_USES_WEIGHTS = True
+
 class BoardState:
     def __init__(self, current_board_state, parent_board, g, heuristic_type, heuristic_uses_weights_TF):
         self.current_board_state = current_board_state
@@ -56,6 +59,10 @@ class BoardState:
         self.g = g
         self.h = heuristic(current_board_state, heuristic_type, heuristic_uses_weights_TF)
         self.f = self.g + self.h
+
+
+FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
+VISITED = []
 
 # Finds the state in the frontier with the lowest f-value
 def get_state_with_lowest_fval():
@@ -74,25 +81,41 @@ def get_all_possible_states_from_current_state(board_state):
         for col in range(N):
             if board_state.current_board_state[row][col] == 0:
                 # Up
-                delta_y = row+1
+                delta_y = row + 1
                 if delta_y >= 0 and delta_y < N:
                     if board_state.current_board_state[delta_y][col] != 0:
-                        states.append((col, row, col, delta_y))
+                        new_board_state = board_state.current_board_state
+                        new_board_state[row][col] = new_board_state[delta_y][col]
+                        new_board_state[delta_y][col] = 0
+                    
+                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
                 # Down
-                delta_y = row-1
+                delta_y = row - 1
                 if delta_y >= 0 and delta_y < N:
                     if board_state.current_board_state[delta_y][col] != 0:
-                        states.append((col, row, col, delta_y))
+                        new_board_state = board_state.current_board_state
+                        new_board_state[row][col] = new_board_state[delta_y][col]
+                        new_board_state[delta_y][col] = 0
+                    
+                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
                 # Left
-                delta_x = col-1
+                delta_x = col - 1
                 if delta_x >= 0 and delta_x < N:
                     if board_state.current_board_state[row][delta_x] != 0:
-                        states.append((col, row, delta_x, row))
+                        new_board_state = board_state.current_board_state
+                        new_board_state[row][col] = new_board_state[row][delta_x]
+                        new_board_state[row][delta_x] = 0
+                    
+                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
                 # Right
-                delta_x = col+1
+                delta_x = col + 1
                 if delta_x >= 0 and delta_x < N:
                     if board_state.current_board_state[row][delta_x] != 0:
-                        states.append((col, row, delta_x, row))   
+                        new_board_state = board_state.current_board_state
+                        new_board_state[row][col] = new_board_state[row][delta_x]
+                        new_board_state[row][delta_x] = 0
+                    
+                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
     return states 
 
 def calc_the_move_between_two_states(board_state_from, board_state_to):
@@ -126,11 +149,6 @@ def backtrack_path_from_current(board_state):
         board_state = board_state.parent
     return path.reverse()
 
-H_TYPE = "Sliding"
-HVAL_USES_WEIGHTS = True
-FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
-VISITED = []
-
 def A_Star():
     while len(FRONTIER) > 0:
         current_board = get_state_with_lowest_fval()
@@ -144,7 +162,7 @@ def A_Star():
             if not(child_state in FRONTIER):
                 FRONTIER.append(child_state)
 
-output_file_name = "C:\\Users\\mikea\\OneDrive\\Desktop\\Output.txt"
+output_file_name = "C:\\Users\\essmi\\OneDrive\\Desktop\\Output.txt"
 fo = open(output_file_name, "w")
 PATH = A_Star()
 fo.write(", ".join(PATH))
