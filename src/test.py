@@ -12,3 +12,8 @@ children = Board.create_children(board.possible_moves, board)
 
 for child in children:
     print(getHVal(child[0], goal_state))
+
+a = [[1,2], [3,4]]
+b = [[1,2], [3,4]]
+
+print(a==b)
