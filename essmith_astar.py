@@ -108,21 +108,19 @@ def calc_the_move_between_two_states(origin_state, destination_state):
     for row in range(N):
         for col in range(N):
             if origin_state.current_board_state[row][col] != destination_state.current_board_state[row][col] and destination_state.current_board_state[row][col] != 0:
-                
+    
                 # Add the tile value to the string
                 move += destination_state.current_board_state[row][col] + " "
 
                 # Add the directional portion to the string
                 if row - 1 >= 0 and origin_state.current_board_state[row][col] == destination_state.current_board_state[row - 1][col]:
                     move += "up"
-                elif row + 1 <= (N - 1) and origin_state.current_board_state[row][col] == to_state.configuration[row+1][col]:
+                elif row + 1 <= (N - 1) and origin_state.current_board_state[row][col] == destination_state.current_board_state[row + 1][col]:
                     move += "down"
-                elif col-1 >= 0 and from_state.configuration[row][col] == to_state.configuration[row][col-1]:
+                elif col - 1 >= 0 and origin_state.current_board_state[row][col] == destination_state.current_board_state[row][col - 1]:
                     move += "left"
                 else: 
                     move += "right"
-
-
                 break       
     return move
 
