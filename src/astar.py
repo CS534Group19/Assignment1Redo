@@ -6,7 +6,7 @@ import threading
 
 start_file = ".\\documentation\\test_boards\\4x4x2.csv"
 
-HEURISTIC = "Sliding"
+HEURISTIC = "Greedy"
 WEIGHTED = True
 # Runtime in seconds
 RUN_TIME = 4

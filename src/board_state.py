@@ -43,11 +43,33 @@ class BoardState():
                     board_array[row][col], row, col)
         return total
 
+
+    def calc_euclidean_distance_for_value(self, value: int, value_x, value_y) -> int:
+        if value == 0:
+            return 0
+        else:
+            for row in range(self.side_length):
+                for col in range(self.side_length):
+                    if self.goal_array[row][col] == value:
+                        # Do Manhattan Calculation
+                        if self.weighted:
+                            return (abs(value_x - row)**2 + abs(value_y - col)**2)**(1/2) * value
+                        else:
+                            return (abs(value_x - row)**2 + abs(value_y - col)**2)**(1/2)
+
+    def calc_total_euclidean_for_board(self, board_array) -> int:
+        total = 0
+        for row in range(self.side_length):
+            for col in range(self.side_length):
+                total += self.calc_euclidean_distance_for_value(
+                    board_array[row][col], row, col)
+        return total
+
     def getHVal(self, heuristic_type: str) -> int:
         if heuristic_type == "Sliding":
             return self.calc_total_manhattan_for_board(self.board_array)
         elif heuristic_type == "Greedy":
-            pass
+            return self.calc_total_euclidean_for_board(self.board_array)
 
     def get_children(self):
         if self.parent is None:
