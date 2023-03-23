@@ -1,13 +1,25 @@
 import threading
 from time import sleep
 import math
+import copy
 
 csv_file = "./documentation/test_boards/board1.csv"
 
-START_STATE =                   [[1, 3, 6], [4, 2, 0], [7, 5, 9]]
-START_STATE_ALTERED =           [[1, 3, 6], [4, 0, 2], [7, 5, 9]]
-GOAL_STATE  =                   [[1, 2, 3], [4, 5, 6], [7, 9, 0]]
-N = len(START_STATE)
+START_STATE_0 =                   [[1, 3, 6], [4, 2, 0], [7, 5, 9]]
+GOAL_STATE_0  =                   [[1, 2, 3], [4, 5, 6], [7, 9, 0]]
+
+START_STATE_3x3x2 =                   [[2, 4, 8], [3, 0, 0], [5, 1, 7]]
+GOAL_STATE_3x3x2  =                   [[1, 2, 3], [4, 5, 7], [8, 0, 0]]
+
+START_STATE_3x3x3 =                   [[0, 3, 6], [8, 2, 0], [7, 0, 1]]
+GOAL_STATE_3x3x3  =                   [[1, 2, 3], [6, 7, 8], [0, 0, 0]]
+
+START_STATE_4x4x2 =                   [[11, 14, 3, 0], [7, 2, 0, 5], [1, 6, 13, 10], [4, 9, 12, 8]]
+GOAL_STATE_4x4x2  =                   [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 0, 0]]
+
+START_STATE_5x5x5 =                   [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [0, 12, 0, 13, 15], [11, 16, 18, 0, 14], [17, 0, 0, 19, 20]]
+GOAL_STATE_5x5x5  =                   [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15], [16, 17, 18, 19, 20], [0, 0, 0, 0, 0]]
+
 
 # Runtime in seconds
 RUN_TIME = 5
@@ -50,9 +62,6 @@ def heuristic(whole_board, heuristic_type, heuristic_uses_weights_TF):
     else:
         return 0
 
-H_TYPE = "Sliding"
-HVAL_USES_WEIGHTS = True
-
 class BoardState:
     def __init__(self, current_board_state, parent_board, g, heuristic_type, heuristic_uses_weights_TF):
         self.current_board_state = current_board_state
@@ -63,9 +72,6 @@ class BoardState:
 
     def __str__(self):
         return str(self.current_board_state)
-
-FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
-VISITED = []
 
 # Finds the state in the frontier with the lowest f-value
 def get_state_with_lowest_fval():
@@ -84,42 +90,45 @@ def get_all_possible_states_from_current_state(board_state):
     for row in range(N):
         for col in range(N):
             if board_state.current_board_state[row][col] == 0:
+
                 # Up
                 delta_y = row + 1
                 if delta_y >= 0 and delta_y < N:
                     if board_state.current_board_state[delta_y][col] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[delta_y][col]
                         new_board_state[delta_y][col] = 0
-                    
-                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        # states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        states.append(BoardState(new_board_state, board_state, board_state.g + 1, H_TYPE, HVAL_USES_WEIGHTS))
                 # Down
                 delta_y = row - 1
                 if delta_y >= 0 and delta_y < N:
                     if board_state.current_board_state[delta_y][col] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[delta_y][col]
                         new_board_state[delta_y][col] = 0
-                    
-                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        # states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        states.append(BoardState(new_board_state, board_state, board_state.g + 1, H_TYPE, HVAL_USES_WEIGHTS))
                 # Left
                 delta_x = col - 1
                 if delta_x >= 0 and delta_x < N:
                     if board_state.current_board_state[row][delta_x] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[row][delta_x]
                         new_board_state[row][delta_x] = 0
-                    
-                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        # states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        states.append(BoardState(new_board_state, board_state, board_state.g + 1, H_TYPE, HVAL_USES_WEIGHTS))
+
                 # Right
                 delta_x = col + 1
                 if delta_x >= 0 and delta_x < N:
                     if board_state.current_board_state[row][delta_x] != 0:
-                        new_board_state = board_state.current_board_state
+                        new_board_state = copy.deepcopy(board_state.current_board_state)
                         new_board_state[row][col] = new_board_state[row][delta_x]
                         new_board_state[row][delta_x] = 0
-                    
-                        states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        # states.append(BoardState(new_board_state, board_state, board_state.g + new_board_state[row][col], H_TYPE, HVAL_USES_WEIGHTS))
+                        states.append(BoardState(new_board_state, board_state, board_state.g + 1, H_TYPE, HVAL_USES_WEIGHTS))
+
     return states 
 
 def calc_the_move_between_two_states(board_state_from, board_state_to):
@@ -156,12 +165,15 @@ def backtrack_path_from_current(board_state):
     while not(board_state.parent == None):
         path.append(calc_the_move_between_two_states(board_state.parent, board_state))
         board_state = board_state.parent
-    return path.reverse()
+    path.reverse()
+    return path
+
 
 def A_Star():
     while len(FRONTIER) > 0:
         current_board = get_state_with_lowest_fval()
         if current_board.current_board_state == GOAL_STATE:
+            print(current_board.current_board_state)
             return backtrack_path_from_current(current_board)
         FRONTIER.remove(current_board)
         VISITED.append(current_board)
@@ -176,7 +188,6 @@ def A_Star():
 #PATH = A_Star()
 #fo.write(", ".join(PATH))
 #fo.close()
-
 
 """
 run_thread = AStarThread(board, goal_state)
@@ -194,21 +205,33 @@ run_thread.join()
 """
 Testing stuff :)
 """
+
+START_STATE = START_STATE_3x3x2
+GOAL_STATE  = GOAL_STATE_3x3x2
+
+N = len(START_STATE)
+H_TYPE = "Sliding"
+HVAL_USES_WEIGHTS = True
+
+FRONTIER = [BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS)]
+VISITED = []
+
 DEBUG = True
 if DEBUG == True:
     print(N)
-
+    
     unweightedManhatTest = calc_total_manhattan_distance(START_STATE, False)
     weightedManhatTest = calc_total_manhattan_distance(START_STATE, True)
-
+    
     print("Total Unweighted Manhattan of Start State equals: ", unweightedManhatTest)
-    print("Total Unweighted Manhattan of Start State equals: ", weightedManhatTest)
+    print("Total Weighted Manhattan of Start State equals: ", weightedManhatTest)
 
     print("The start board: \n", START_STATE)
 
     startchildren = get_all_possible_states_from_current_state(BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS))
     print("# of children it has :", len(startchildren))
+     
 
-    print("Test of board movement: ")
-    print(calc_the_move_between_two_states(BoardState(START_STATE, None, 0, H_TYPE, HVAL_USES_WEIGHTS), 
-                                           BoardState(START_STATE_ALTERED, None, 0, H_TYPE, HVAL_USES_WEIGHTS)))
+    print(A_Star())
+
+
