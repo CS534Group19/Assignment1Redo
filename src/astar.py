@@ -1,71 +1,112 @@
-from board import *
-import threading
+from initialization import Initialization
+from board_state import BoardState
+import time
 from time import sleep
-import heapq
+import threading
 
-csv_file = "./documentation/test_boards/board1.csv"
+start_file = ".\\documentation\\test_boards\\4x4x2.csv"
 
-board = Board(csv_file)
-board.set_possible_moves()
-goal_state = board.find_goal_state()
-
+HEURISTIC = "Sliding"
+WEIGHTED = True
 # Runtime in seconds
-RUN_TIME = 5
+RUN_TIME = 1
+
+new_board = Initialization(start_file)
+board_state = BoardState(new_board.board, new_board.goal, HEURISTIC, WEIGHTED)
+
+reached_goal = False
+open = [board_state]
+closed = []
+current_state: BoardState
 
 
 class AStarThread(threading.Thread):
-    def __init__(self, board, goal):
+    def __init__(self, board: BoardState):
         threading.Thread.__init__(self)
         self._stop_event = threading.Event()
-        self.board = board
-        self.goal = goal
 
     # The main A* algorithm
-    def a_star(self, start, goal):
-        frontier = []
-        heapq.heappush(frontier, (0, start))
-        came_from = {start: None}
-        cost_so_far = {start: 0}
+    def a_star(self):
+        global reached_goal
+        global open
+        global closed
+        global current_state
 
-        while frontier:
-            current = heapq.heappop(frontier)[1]
-            if current == goal:
+        start_time = time.perf_counter()
+
+        while True and not self._stop_event.is_set():
+            current_state = open.pop(0)
+            if current_state.board_array == board_state.goal_array:
+                reached_goal = True
+                moves = []
+                effort_total = 0
+                final_depth = current_state.node_depth
+                while current_state.parent is not None:
+                    effort_total += current_state.effort
+                    moves.append(current_state.move_title)
+                    current_state = current_state.parent
+                moves.reverse()
+                for move in moves:
+                    print(move)
+
+                print(f"\nNodes expanded: {len(closed)}")
+                print(f"Moves required: {len(moves)}")
+                print(f"Solution Cost: {effort_total}")
+                if final_depth != 0:
+                    print(
+                        f"Estimated branching factor {len(closed)**(1/final_depth):0.3f}")
+                end_time = time.perf_counter()
+                print(f"\nSearch took {end_time - start_time:0.4f} seconds")
                 break
-
-            for child in Board.create_children(self.board.possible_moves, self.board):
-                new_cost = cost_so_far[current] + child[1]
-                if (child[0]) not in cost_so_far or new_cost < cost_so_far[child[0]]:
-                    cost_so_far[child[0]] = new_cost
-                    priority = new_cost + getHVal(child[0], goal_state)
-                    # TODO fix heappush error
-                    heapq.heappush(frontier, (priority, child[0]))
-                    came_from[child[0]] = current
-
-        path = [goal]
-        while path[-1] != start:
-            path.append(came_from[path[-1]])
-        path.reverse()
-
-        return path
+            children = current_state.get_children()
+            for child in children:
+                # Speeds up processing by not checking the child if it's already been checked
+                if child.board_array in [board.board_array for board in closed]:
+                    continue
+                if child.board_array not in [board.board_array for board in open]:
+                    open.append(child)
+            closed.append(current_state)
+            open.sort(key=lambda x: x.f)
 
     def run(self):
         lock = threading.Lock()
         with lock:
-            path = self.a_star(self.board, self.goal)
-            for board in path:
-                print(board.move_title)
+            self.a_star()
 
     def stop(self):
         self._stop_event.set()
 
 
-run_thread = AStarThread(board, goal_state)
+run_thread = AStarThread(board_state)
 run_thread.daemon = True
 
 print(f"Please wait {RUN_TIME} seconds...")
+
+reached_goal = False
 run_thread.start()
 
 sleep(RUN_TIME)
 
 run_thread.stop()
 run_thread.join()
+
+if not reached_goal:
+    print("\nGoal not reached...")
+    print("Printing current data.\n")
+    moves = []
+    effort_total = 0
+    final_depth = current_state.node_depth
+    while current_state.parent is not None:
+        effort_total += current_state.effort
+        moves.append(current_state.move_title)
+        current_state = current_state.parent
+    moves.reverse()
+    # for move in moves:
+    #     print(move)
+
+    print(f"Nodes expanded: {len(closed)}")
+    print(f"Moves required: {len(moves)}")
+    print(f"Solution Cost: {effort_total}")
+    if final_depth != 0:
+        print(
+            f"Estimated branching factor {len(closed)**(1/final_depth):0.3f}")
