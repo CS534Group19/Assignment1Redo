@@ -1,8 +1,5 @@
-import copy
-
-
 class BoardState():
-    def __init__(self, board_array, goal_array, heuristic_type: str, weighted: bool, move_cost: int = 0, parent=None, move_title="", effort=0, node_depth=0):
+    def __init__(self, board_array, goal_array, heuristic_type: str, weighted: str, move_cost: int = 0, parent=None, move_title="", effort=0, node_depth=0):
         self.board_array = board_array
         self.side_length = len(self.board_array)
         self.goal_array = goal_array
@@ -30,7 +27,7 @@ class BoardState():
                 for col in range(self.side_length):
                     if self.goal_array[row][col] == value:
                         # Do Manhattan Calculation
-                        if self.weighted:
+                        if self.weighted == "True":
                             return (abs(value_x - row) + abs(value_y - col)) * value
                         else:
                             return (abs(value_x - row) + abs(value_y - col))
@@ -51,8 +48,7 @@ class BoardState():
             for row in range(self.side_length):
                 for col in range(self.side_length):
                     if self.goal_array[row][col] == value:
-                        # Do Manhattan Calculation
-                        if self.weighted:
+                        if self.weighted == "True":
                             return (abs(value_x - row)**2 + abs(value_y - col)**2)**(1/2) * value
                         else:
                             return (abs(value_x - row)**2 + abs(value_y - col)**2)**(1/2)
