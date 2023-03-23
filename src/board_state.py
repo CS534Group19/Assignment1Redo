@@ -64,40 +64,40 @@ class BoardState():
                     delta_y = row+1
                     if delta_y >= 0 and delta_y < self.side_length:
                         if self.board_array[delta_y][col] != 0:
-                            current_copy = copy.deepcopy(self)
+                            current_copy = [x[:] for x in self.board_array]
                             # # Swap the zero and the value
-                            current_copy.board_array[row][col] = current_copy.board_array[delta_y][col]
-                            current_copy.board_array[delta_y][col] = 0
-                            states.append(BoardState(current_copy.board_array, self.goal_array,
+                            current_copy[row][col] = current_copy[delta_y][col]
+                            current_copy[delta_y][col] = 0
+                            states.append(BoardState(current_copy, self.goal_array,
                                                      self.heuristic_type, self.weighted, g+1, self, move_title=f"Move {self.board_array[delta_y][col]} up", effort=self.board_array[delta_y][col], node_depth=node_depth+1))
                     # Down
                     delta_y = row-1
                     if delta_y >= 0 and delta_y < self.side_length:
                         if self.board_array[delta_y][col] != 0:
-                            current_copy = copy.deepcopy(self)
+                            current_copy = [x[:] for x in self.board_array]
                             # Swap the zero and the value
-                            current_copy.board_array[row][col] = current_copy.board_array[delta_y][col]
-                            current_copy.board_array[delta_y][col] = 0
-                            states.append(BoardState(current_copy.board_array, self.goal_array,
+                            current_copy[row][col] = current_copy[delta_y][col]
+                            current_copy[delta_y][col] = 0
+                            states.append(BoardState(current_copy, self.goal_array,
                                                      self.heuristic_type, self.weighted, g+1, self, move_title=f"Move {self.board_array[delta_y][col]} down", effort=self.board_array[delta_y][col], node_depth=node_depth+1))
                     # Left
                     delta_x = col-1
                     if delta_x >= 0 and delta_x < self.side_length:
                         if self.board_array[row][delta_x] != 0:
-                            current_copy = copy.deepcopy(self)
+                            current_copy = [x[:] for x in self.board_array]
                             # Swap the zero and the value
-                            current_copy.board_array[row][col] = current_copy.board_array[row][delta_x]
-                            current_copy.board_array[row][delta_x] = 0
-                            states.append(BoardState(current_copy.board_array, self.goal_array,
+                            current_copy[row][col] = current_copy[row][delta_x]
+                            current_copy[row][delta_x] = 0
+                            states.append(BoardState(current_copy, self.goal_array,
                                                      self.heuristic_type, self.weighted, g+1, self, move_title=f"Move {self.board_array[row][delta_x]} left", effort=self.board_array[row][delta_x], node_depth=node_depth+1))
                     # Right
                     delta_x = col+1
                     if delta_x >= 0 and delta_x < self.side_length:
                         if self.board_array[row][delta_x] != 0:
-                            current_copy = copy.deepcopy(self)
+                            current_copy = [x[:] for x in self.board_array]
                             # Swap the zero and the value
-                            current_copy.board_array[row][col] = current_copy.board_array[row][delta_x]
-                            current_copy.board_array[row][delta_x] = 0
-                            states.append(BoardState(current_copy.board_array, self.goal_array,
+                            current_copy[row][col] = current_copy[row][delta_x]
+                            current_copy[row][delta_x] = 0
+                            states.append(BoardState(current_copy, self.goal_array,
                                                      self.heuristic_type, self.weighted, g+1, self, move_title=f"Move {self.board_array[row][delta_x]} right", effort=self.board_array[row][delta_x], node_depth=node_depth+1))
         return states

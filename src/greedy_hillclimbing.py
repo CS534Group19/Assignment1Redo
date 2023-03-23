@@ -1,115 +1,130 @@
-# Author: Jeff Davis, Mike Alicea
-# Adapted by Cutter Beck
-# Updated: 2/13/2023
-
-import sys
-import time
 from initialization import Initialization
-from new_board import *
+from board_state import BoardState
+import time
+from time import sleep
+import threading
 
-# Hill Climbing param order -> board_file_name.csv run_time
-# Params stored in sys.argv array, sys.argv[0] is the name of the Python file being executed
-arg_board_csv = str(sys.argv[1])
-arg_run_time = float(sys.argv[2])
+start_file = "D:\\WPI\\Sophomore Year\\CS534\\Assignment1Redo\\documentation\\test_boards\\4x4x2.csv"
 
-# Create a new N-Puzzle
-puzzle = Initialization(arg_board_csv)
-# Get the two possible goal states
-zeroes_in_front_goal = puzzle.front_goal
-zeroes_in_back_goal = puzzle.back_goal
+HEURISTIC = "Sliding"
+WEIGHTED = True
+# Runtime in seconds
+RUN_TIME = 20
+RESTARTS = 1000
 
-# Make the starting board (makes use of default None for weighted and heuristic in the Board constructor)
-parent = Board(puzzle.board_array_2D, zeroes_in_front_goal, zeroes_in_back_goal)
+new_board = Initialization(start_file)
+board_state = BoardState(new_board.board, new_board.goal, HEURISTIC, WEIGHTED)
 
-def hillClimb(start: Board, max_time: float, repeats: int):
-    """Static method to run hill climbing
-    ### Parameters
-    - start: the starting Board for the search
-    ### Returns
-    - nothing, but prints to the console
-    """
-    # Get all possible moves for the start state
-    start.set_zero_neighbors()
-    # Begin search
-    current_board: Board = start
-    open = [start] # tracks children being searched
-    nodes_expanded = []
+reached_goal = False
+open = [board_state]
+closed = []
+current_state = board_state
 
-    trial_time = max_time / repeats
 
-    trial_counter = 0
-    trial_time_total = 0.0
-    goal = False
+class HillclimbingThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self._stop_event = threading.Event()
 
-    start_time = time.perf_counter()
-    current_time = time.perf_counter()
-    while not goal:
-        if (current_board.board_array == current_board.goal):
-            print("\nReached goal state")
-            cost = current_board.effort
-            final_depth = current_board.node_depth
-            moves = []
-            while current_board.parent is not None:
-                moves.append(current_board.move)
-                current_board = current_board.parent
-            moves.reverse()
-            for move in moves:
-                print(move)
+    def hillclimbing(self):
+        global reached_goal
+        global open
+        global closed
+        global current_state
+        global trial_time
+        global trial_time_total
 
-            print(f"\nNodes expanded: {len(nodes_expanded)}")
-            print(f"Moves required: {len(moves)}")
-            print(f"Solution Cost: {cost}")
-            if final_depth != 0:
-                print(f"Estimated branching factor {len(nodes_expanded)**(1/final_depth):0.3f}")
-            goal = True
-            break
-        if (current_time - start_time < max_time):
-            trial_time_total = 0.0
-            trial_counter += 1
+        trial_time = RUN_TIME / RESTARTS
+        trial_counter = 0
+        trial_time_total = 0.0
 
-            trial_start_time = time.perf_counter()
+        start_time = time.perf_counter()
+        current_time = time.perf_counter()
 
-            current_board = open.pop(0)
-
-            # DELAYED HERE
-            current_time = time.perf_counter()
-            if populate_children(current_board, True, start_time, current_time, max_time):
-                print("\nOut of time")
-                print("Printing partial moves...")
+        while not reached_goal and not self._stop_event.is_set():
+            if current_state.board_array == board_state.goal_array:
+                reached_goal = True
                 moves = []
-                while current_board.parent is not None:
-                    moves.append(current_board.move)
-                    current_board = current_board.parent
+                effort_total = 0
+                final_depth = current_state.node_depth
+                while current_state.parent is not None:
+                    effort_total += current_state.effort
+                    moves.append(current_state.move_title)
+                    current_state = current_state.parent
                 moves.reverse()
                 for move in moves:
                     print(move)
+
+                print(f"\nNodes expanded: {len(closed)}")
+                print(f"Moves required: {len(moves)}")
+                print(f"Solution Cost: {effort_total}")
+                if final_depth != 0:
+                    print(
+                        f"Estimated branching factor {len(closed)**(1/final_depth):0.3f}")
+                end_time = time.perf_counter()
+                print(f"\nSearch took {end_time - start_time:0.4f} seconds")
                 break
+            if (current_time - start_time < RUN_TIME):
+                trial_time_total = 0.0
+                trial_counter += 1
+                
+                trial_start_time = time.perf_counter()
 
-            current_board.children.sort(key = lambda child:child.h_val)
-            open.append(current_board.children[0])
-            nodes_expanded.append(current_board)
+                current_state = open.pop()
+                current_time = time.perf_counter()
 
-            trial_end_time = time.perf_counter()
-            trial_time_total += trial_end_time - trial_start_time
-            
-            if trial_time_total <= trial_time: # new trial if trial time overdone
-                print("Restarting from best node")
-        else:
-            # get the list of moves
-            print("\nOut of time")
-            print("Printing partial moves...")
-            moves = []
-            while current_board.parent is not None:
-                moves.append(current_board.move)
-                current_board = current_board.parent
-            moves.reverse()
-            for move in moves:
-                print(move)
-            break
-        current_time = time.perf_counter()
+                
+                children = current_state.get_children()
+                children.sort(key=lambda x: x.h)
+                open.append(children[0])
+                closed.append(current_state)
 
-# Time the total length of running hill climbing
-start_time = time.perf_counter()
-hillClimb(parent, arg_run_time, 15)
-end_time = time.perf_counter()
-print(f"\nSearch took {end_time - start_time:0.4f} seconds")
+                trial_end_time = time.perf_counter()
+                trial_time_total += trial_end_time - trial_start_time
+            else:
+                print("Out of time")
+                break
+            current_time = time.perf_counter()
+
+    def run(self):
+        lock = threading.Lock()
+        with lock:
+            self.hillclimbing()
+
+    def stop(self):
+        self._stop_event.set()
+
+
+run_thread = HillclimbingThread()
+run_thread.daemon = True
+
+print(f"Please wait {RUN_TIME} seconds...")
+
+reached_goal = False
+run_thread.start()
+
+sleep(RUN_TIME)
+
+run_thread.stop()
+run_thread.join()
+
+if not reached_goal:
+    print("\nGoal not reached...")
+    print("Printing current data.\n")
+    moves = []
+    effort_total = 0
+    final_depth = current_state.node_depth
+    while current_state.parent is not None:
+        effort_total += current_state.effort
+        moves.append(current_state.move_title)
+        current_state = current_state.parent
+    moves.reverse()
+    # for move in moves:
+    #     print(move)
+
+    print(f"Nodes expanded: {len(closed)}")
+    print(f"Moves required: {len(moves)}")
+    print(f"Solution Cost: {effort_total}")
+    if final_depth != 0:
+        print(
+            f"Estimated branching factor {len(closed)**(1/final_depth):0.3f}")
