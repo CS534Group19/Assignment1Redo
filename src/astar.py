@@ -6,10 +6,10 @@ import threading
 
 start_file = ".\\documentation\\test_boards\\4x4x2.csv"
 
-HEURISTIC = "Sliding"
+HEURISTIC = "Greedy"
 WEIGHTED = True
 # Runtime in seconds
-RUN_TIME = 1
+RUN_TIME = 4
 
 new_board = Initialization(start_file)
 board_state = BoardState(new_board.board, new_board.goal, HEURISTIC, WEIGHTED)
@@ -21,11 +21,10 @@ current_state: BoardState
 
 
 class AStarThread(threading.Thread):
-    def __init__(self, board: BoardState):
+    def __init__(self):
         threading.Thread.__init__(self)
         self._stop_event = threading.Event()
 
-    # The main A* algorithm
     def a_star(self):
         global reached_goal
         global open
@@ -77,7 +76,7 @@ class AStarThread(threading.Thread):
         self._stop_event.set()
 
 
-run_thread = AStarThread(board_state)
+run_thread = AStarThread()
 run_thread.daemon = True
 
 print(f"Please wait {RUN_TIME} seconds...")
