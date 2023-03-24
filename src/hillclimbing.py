@@ -50,6 +50,8 @@ def main(arg_board_csv, arg_run_time):
    
     print("Initial Manhattan Distance")
     print (CalculateDistance(startingboard, backboard, frontboard, winState))
+    print('winstate')
+    print(winState)
     
     tic = time.perf_counter()
     data = solution_SimulatedAnnealing(startingboard, backboard, frontboard, winState, arg_run_time)
@@ -194,19 +196,21 @@ def hillClimbing(anyBoard, backboard, frontboard, winState, temp):
 
 def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_time):
     # the success rate will increase by increasing the maxRound
-    maxRound = 10000000
+    maxRound = 100000000
     board_size = len(board)
     if board_size < 4:
         NumberOfRuns = arg_run_time
     else:
         NumberOfRuns = arg_run_time / 2.0
     timePerRound = arg_run_time / NumberOfRuns
+    timePerRound = 1
     count = 0
-    originalboard = board
+    originalboard = [x for x in board]
     start = time.perf_counter()
     newrunstart = time.perf_counter()
     solutionCost = 0
     temp = len(board)
+    temp = 9
     decay = 0.9
     newcount = 0
     moves = ['Start Solution', 'First Move:']
@@ -233,8 +237,14 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
             print(solutionCost)
             print("Final Board")
             return [board, arg_run_time, count, newcount, solutionCost, (count)**(1/newcount), endtime]
-        if (newcount > 1000 or runend > timePerRound):
-            board = originalboard
+        if (newcount > 10000 or runend > timePerRound):
+            # print('board')
+            # print(board)
+            board = [x for x in originalboard]
+            # print('original')
+            # print(originalboard)
+            # print('board now')
+            # print(board)
             newrunstart = time.perf_counter()
             solutionCost = 0
             newcount = 0
@@ -248,6 +258,12 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
         count += 1
         newcount += 1
         temp = temp * decay
+        # print('moves')
+        # print(moves)
+        # print('board')
+        # print(board)
+        # print('newcount')
+        # print(newcount)
 
         if(count >= maxRound or endtime > arg_run_time):
             print("Could not complete in time")

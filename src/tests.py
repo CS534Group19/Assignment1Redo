@@ -36,7 +36,7 @@ with open(f"{DATA_DIR}\\data_hillclimbing_4x4.csv", "w", newline="") as data_fil
     file = Assignment1RedoDir + "\\documentation\\test_boards\\4x4x2.csv"
     print(file)
     for i in range(10):
-        data_writer.writerow([file] + main(file, 20)[1:])
+        data_writer.writerow([file] + main(file, 120)[1:])
 
 # with open(f"{DATA_DIR}\\data.csv", "w", newline="") as data_file:
 #     data_writer = csv.writer(data_file)
