@@ -7,41 +7,13 @@ import sys
 import time
 import random
 import math
-from initialization import Initialization
 
-
-
-# TODO NEED to incorporate runtime here somehow
-# TODO get an explanation of this code so it can be paired down and centralized to use our board structure as we have to mesh this with greedy and sidemove hill climbing
-
-
-def main():
-    # Hill Climbing param order -> board_file_name.csv run_time
-    # Params stored in sys.argv array, sys.argv[0] is the name of the Python file being executed
-    # arg_board_csv = str(sys.argv[1])
-    # arg_run_time = float(sys.argv[2])
-
-    # Boards for testing
-    # Professor Beck's boards
-    BOARD_1 = "./documentation/test_boards/board1.csv" # not solvable according to https://www.geeksforgeeks.org/check-instance-8-puzzle-solvable/
-    BOARD_2 = "./documentation/test_boards/board2.csv" # solvable according to https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/
-
-    # Cutter Beck's boards
-    BOARD_3 = "./documentation/test_boards/board3.csv" # ~0.2 seconds, 4 moves, 8 nodes, 18 cost, branching factor 1.7
-    BOARD_4 = "./documentation/test_boards/board4.csv" # ~22 seconds, 6 moves, 52 nodes, 26 cost, branching factor 1.9
-    BOARD_5 = "./documentation/test_boards/board5.csv" # ~418.7 seconds, or ~7 min, 5 moves, 25 nodes, 60 cost, branching factor 1.9
-    BOARD_6 = "./documentation/test_boards/board6.csv" # ~10.5 seconds, 3 moves, 14 nodes, 18 cost, branching factor 2.4
-    BOARD_7 = "./documentation/test_boards/board7.csv" # ~3.8 seconds, 4 moves, 14 nodes, 46 cost, branching factor 1.9
-
-    B8 = "./documentation/test_boards/JeffBoards/B8.csv"
-    B11 = "./documentation/test_boards/JeffBoards/B11.csv"
-    arg_board_csv = B8
-    arg_run_time = 20
+def main(arg_board_csv, arg_run_time):
 
     # Read file and create starting board
     startingboard = []
 
-    with open(arg_board_csv) as file:
+    with open(arg_board_csv, 'r', encoding='utf-8-sig') as file:
         csvreader = csv.reader(file)
         for row in csvreader:
             startingboard = startingboard + row
@@ -80,26 +52,11 @@ def main():
     print (CalculateDistance(startingboard, backboard, frontboard, winState))
     
     tic = time.perf_counter()
-    newBoard = solution_SimulatedAnnealing(startingboard, backboard, frontboard, winState, arg_run_time)
+    data = solution_SimulatedAnnealing(startingboard, backboard, frontboard, winState, arg_run_time)
     toc = time.perf_counter()
-    print(newBoard)
+    print(data[0])
     print(f"\nSearch took {toc - tic:0.4f} seconds")
-
-    # tic = time.perf_counter()
-    # Count += 1
-    # inProccessBoard = solution_SimulatedAnnealing(startingboard, backboard, frontboard, winState)
-    # if FAILED:
-    #         result += "Failed!"
-    # else:
-    #         for col in range(len(inProccessBoard)):
-    #          result += str(inProccessBoard[col]) + " "
-    # result += "\n"
-    
-    # toc = time.perf_counter()
-    # print(f"\nSearch took {toc - tic:0.4f} seconds")
-    # result += "Success rate: " + str(Count / float(Count)) + '\n'
-
-    # print (result)
+    return data
 
 
 #Calculate Weighted Manhattan Distance for each win state
@@ -238,7 +195,11 @@ def hillClimbing(anyBoard, backboard, frontboard, winState, temp):
 def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_time):
     # the success rate will increase by increasing the maxRound
     maxRound = 10000000
-    NumberOfRuns = 15
+    board_size = len(board)
+    if board_size < 4:
+        NumberOfRuns = arg_run_time
+    else:
+        NumberOfRuns = arg_run_time / 2.0
     timePerRound = arg_run_time / NumberOfRuns
     count = 0
     originalboard = board
@@ -259,8 +220,8 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
 
         if collisionNum == 0:
             length = len(moves) - 1
-            for i in range(0, length, 2):
-                print(moves[i] + ' ' + moves[i+1])
+            # for i in range(0, length, 2):
+            #     print(moves[i] + ' ' + moves[i+1])
             #print(moves)
             print("Move Count (Total Nodes Visited)")
             print (count)
@@ -271,7 +232,7 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
             print("Solution Cost")
             print(solutionCost)
             print("Final Board")
-            return board
+            return [board, arg_run_time, count, newcount, solutionCost, (count)**(1/newcount), endtime]
         if (newcount > 1000 or runend > timePerRound):
             board = originalboard
             newrunstart = time.perf_counter()
@@ -290,8 +251,11 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
 
         if(count >= maxRound or endtime > arg_run_time):
             print("Could not complete in time")
-            return board
+            return [board, arg_run_time,count, newcount, solutionCost, (count)**(1/newcount), "N/A"]
 
 
 if __name__ == '__main__':
-    main()
+    BOARD = sys.argv[1]
+    RUN_TIME = sys.argv[2]
+
+    main(BOARD, RUN_TIME)
