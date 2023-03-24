@@ -61,7 +61,7 @@ Another attempt at Assignment 1
         1. COMMAND: `python astar.py path_to_board.csv heuristic tile_weight?`
             - path_to_board.csv: the path location of the board CSV file the algorithm will search
             - heuristic: one of `Sliding` or `Greedy`
-                - **`greedy` will run this modified version of AStar for Part 3**
+                - **`Greedy` will run this modified version of AStar for Part 3**
             - tile_weight?: one of `True` or `False`
                 - This will run the modified A* Search with either a weighted greedy heuristic (`True`) or an unweighted greedy heuristic (`False`)
 2. Output from Modified A* Search:
