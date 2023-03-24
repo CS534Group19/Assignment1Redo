@@ -50,13 +50,10 @@ def main(arg_board_csv, arg_run_time):
    
     print("Initial Manhattan Distance")
     print (CalculateDistance(startingboard, backboard, frontboard, winState))
-    print('winstate')
-    print(winState)
     
     tic = time.perf_counter()
     data = solution_SimulatedAnnealing(startingboard, backboard, frontboard, winState, arg_run_time)
     toc = time.perf_counter()
-    print(data[0])
     print(f"\nSearch took {toc - tic:0.4f} seconds")
     return data
 
@@ -140,7 +137,7 @@ def hillClimbing(anyBoard, backboard, frontboard, winState, temp):
                 upMove = anyBoard
                 upMove[i] = anyBoard[i-sideLength]
                 val = upMove[i]
-                direction = 'Up'
+                direction = 'Down'
                 upMove[i-sideLength] = 'B'
                 if (CalculateDistance(upMove, backboard, frontboard, winState) < d):
                     return upMove, val, direction
@@ -154,7 +151,7 @@ def hillClimbing(anyBoard, backboard, frontboard, winState, temp):
                 downMove = anyBoard
                 downMove[i] = anyBoard[i+sideLength]
                 val = downMove[i]
-                direction = 'Down'
+                direction = 'Up'
                 downMove[i+sideLength] = 'B'
                 if CalculateDistance(downMove, backboard, frontboard, winState) < d:
                     return downMove, val, direction
@@ -168,7 +165,7 @@ def hillClimbing(anyBoard, backboard, frontboard, winState, temp):
                 leftMove = anyBoard
                 leftMove[i] = anyBoard[i-1]
                 val = leftMove[i]
-                direction = 'Left'
+                direction = 'Right'
                 leftMove[i-1] = 'B'
                 if (CalculateDistance(leftMove, backboard, frontboard, winState) < d):
                     return leftMove, val, direction
@@ -182,7 +179,7 @@ def hillClimbing(anyBoard, backboard, frontboard, winState, temp):
                 rightMove = anyBoard
                 rightMove[i] = anyBoard[i+1]
                 val = rightMove[i]
-                direction = 'Right'
+                direction = 'Left'
                 rightMove[i+1] = 'B'
                 if CalculateDistance(rightMove, backboard, frontboard, winState) < d:
                     return rightMove, val, direction
@@ -224,27 +221,15 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
 
         if collisionNum == 0:
             length = len(moves) - 1
-            # for i in range(0, length, 2):
-            #     print(moves[i] + ' ' + moves[i+1])
-            #print(moves)
-            print("Move Count (Total Nodes Visited)")
-            print (count)
-            print("Moves in Solution (Node Depth)")
-            print(newcount)
-            print("Branching Factor")
-            print((count)**(1/newcount))
-            print("Solution Cost")
-            print(solutionCost)
-            print("Final Board")
+            for i in range(0, length, 2):
+                print(moves[i] + ' ' + moves[i+1])
+            print(f"\nNodes expanded: {count}")
+            print(f"Moves required: {newcount}")
+            print(f"Solution Cost: {solutionCost}")
+            print(f"Estimated branching factor: {(count)**(1/newcount):0.4f}")
             return [board, arg_run_time, count, newcount, solutionCost, (count)**(1/newcount), endtime]
-        if (newcount > 10000 or runend > timePerRound):
-            # print('board')
-            # print(board)
+        if (newcount > 1000 or runend > timePerRound):
             board = [x for x in originalboard]
-            # print('original')
-            # print(originalboard)
-            # print('board now')
-            # print(board)
             newrunstart = time.perf_counter()
             solutionCost = 0
             newcount = 0
@@ -258,12 +243,6 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
         count += 1
         newcount += 1
         temp = temp * decay
-        # print('moves')
-        # print(moves)
-        # print('board')
-        # print(board)
-        # print('newcount')
-        # print(newcount)
 
         if(count >= maxRound or endtime > arg_run_time):
             print("Could not complete in time")
@@ -272,6 +251,6 @@ def solution_SimulatedAnnealing(board, backboard, frontboard, winState, arg_run_
 
 if __name__ == '__main__':
     BOARD = sys.argv[1]
-    RUN_TIME = sys.argv[2]
+    RUN_TIME = float(sys.argv[2])
 
     main(BOARD, RUN_TIME)
